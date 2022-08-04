@@ -12,4 +12,4 @@ SATELLITE_MAX_HEADER_SIZE="${SATELLITE_MAX_HEADER_SIZE:-32768}"
 # Log level
 SATELLITE_LOG_LEVEL="${SATELLITE_LOG_LEVEL:-info}"
 
-gunicorn wsgi:app --bind 0.0.0.0:${SATELLITE_PORT} --log-level=${SATELLITE_LOG_LEVEL} --workers=${SATELLITE_GUNICORN_WORKERS} --limit-request-field_size=${SATELLITE_MAX_HEADER_SIZE}
+exec gunicorn wsgi:app --bind 0.0.0.0:${SATELLITE_PORT} --log-level=${SATELLITE_LOG_LEVEL} --workers=${SATELLITE_GUNICORN_WORKERS} --limit-request-field_size=${SATELLITE_MAX_HEADER_SIZE}
