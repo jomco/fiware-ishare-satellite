@@ -1,5 +1,6 @@
 import jwt
 from OpenSSL import crypto
+from OpenSSL.crypto import X509StoreContextError
 from cryptography.x509 import load_pem_x509_certificate
 import time, os
 
@@ -96,6 +97,12 @@ def validate_jwt(token, config, app, required_issuer=None):
         if decoded_header['alg'].upper() != "RS256":
             app.logger.debug('Wrong header alg={}'.format(decoded_header['alg']))
             return False
+
+        # Check required issuer
+        if required_issuer is not None:
+            if decoded_payload['iss'] != required_issuer:
+                app.logger.debug("Invalid iss parameter")
+                return False
 
         # Check for x5c header
         if 'x5c' not in decoded_header:

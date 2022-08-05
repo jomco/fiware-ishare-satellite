@@ -71,4 +71,12 @@ The satellite is providing the following endpoints:
 * `/parties`: Gives information about data space participants
 
 
+## Tests
+
+Tests can be run with `pytest` via
+```shell
+pytest
+```
+
+
 
