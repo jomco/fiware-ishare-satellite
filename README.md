@@ -5,7 +5,7 @@ Simple implementation of an iSHARE satellite trust anchor.
 It is based on Python Flask using gunicorn and runs completely stateless. 
 It is configured with a static configuration file.
 
-> :information_source: **Note**  
+> :information_source:  
 > This implementation of the iSHARE Satellite is only meant for testing and demonstration purposes. 
 > It is not possible to change participants or trusted CAs in a running instance. This 
 > implementation should not be used in production environments. 
