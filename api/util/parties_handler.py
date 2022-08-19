@@ -140,6 +140,8 @@ def get_parties_info(request, config, app):
         return parties_info
     for p in config['parties']:
 
+        app.logger.debug("Compare request to participant: {}".format(p['id']))
+
         # Check for name
         r_name = request.args.get('name')
         if (r_name is not None) and (r_name != "*") and (r_name != p['name']):

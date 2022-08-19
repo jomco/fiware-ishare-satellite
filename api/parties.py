@@ -62,6 +62,7 @@ def index():
         abort(500)
 
     # Add aud (= requester EORI)
+    current_app.logger.debug("Adding 'aud' parameter to parties JWT")
     decoded_payload = ""
     try:
         decoded_payload = jwt.decode(request_token, options={"verify_signature": False})
@@ -71,6 +72,7 @@ def index():
     result['aud'] = decoded_payload['client_id']
 
     # Add exp/iat
+    current_app.logger.debug("Adding expiration period to parties JWT")
     iat = int(str(time.time()).split('.')[0])
     exp = iat + RESPONSE_TOKEN_DURATION
     result['iat'] = iat
@@ -80,6 +82,7 @@ def index():
     result['jti'] = str(uuid.uuid4())
 
     # Build header
+    current_app.logger.debug("Generating header for parties_token JWT")
     header = {
         'x5c': get_x5c_chain(get_certificates(satellite))
     }
