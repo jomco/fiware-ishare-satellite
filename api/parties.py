@@ -1,5 +1,5 @@
 from flask import Blueprint, Response, current_app, abort, request
-from api.util.token_handler import validate_jwt, get_authorization_header
+from api.util.token_handler import validate_jwt, get_authorization_header, get_x5c_chain
 from api.util.parties_handler import check_invalid_parameters, get_parties_info, paginate_parties
 from api.util.config_handler import get_private_key, get_certificates
 import uuid
@@ -86,6 +86,7 @@ def index():
 
     # Encode JWT
     current_app.logger.debug("Encoding parties_token JWT")
+    current_app.logger.debug("{}".format(result))
     p_token = ""
     try:
         p_token = jwt.encode(result, get_private_key(satellite), algorithm="RS256", headers=header)
@@ -93,6 +94,7 @@ def index():
         current_app.logger.debug('Could not encode JWT for parties_token: {}'.format(ex))
         abort(500)
 
+    current_app.logger.debug("==> {}".format(p_token))
     return {
         'parties_token' : p_token
     }, 200
