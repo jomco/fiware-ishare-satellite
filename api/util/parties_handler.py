@@ -119,7 +119,7 @@ def paginate_parties(parties_info, page):
     page = int(page)
     start = (page-1)*MAX_PER_PAGE
     end = page * MAX_PER_PAGE
-    data = parties_info['data'][start:end]
+    data = parties_info['data'][int(start):int(end)]
 
     # Replace and return
     parties_info['data'] = data
