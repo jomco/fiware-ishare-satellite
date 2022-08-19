@@ -2,7 +2,7 @@ from api.util.token_handler import get_subject_components
 import os
 
 # Maximum of parties per page
-MAX_PER_PAGE = os.environ.get('SATELLITE_MAX_PARTIES_PER_PAGE', 10)
+MAX_PER_PAGE = int(os.environ.get('SATELLITE_MAX_PARTIES_PER_PAGE', 10))
 
 # Request must contain at leat one of these parameters
 MINIMUM_PARAMETERS = ['name', 'eori', 'certified_only', 'active_only', 'certificate_subject_name']
