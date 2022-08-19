@@ -57,7 +57,6 @@ def index():
 
     # Add iss/sub (= local EORI)
     try:
-        current_app.logger.debug("Setting parameters 'iss' and 'sub' in parties JWT")
         result['iss'] = satellite['id']
         result['sub'] = satellite['id']
     except KeyError as ke:
@@ -65,17 +64,15 @@ def index():
         abort(500)
 
     # Add aud (= requester EORI)
-    current_app.logger.debug("Adding 'aud' parameter to parties JWT")
     decoded_payload = ""
     try:
         decoded_payload = jwt.decode(request_token, options={"verify_signature": False})
     except Exception as ex:
-        current_app.logger.debug('Could not decode JWT: {}'.format(ex))
+        current_app.logger.debug('Could not decode JWT to extract result aud parameter: {}'.format(ex))
         abort(401, description="Could not decode iSHARE JWT Access_token")
     result['aud'] = decoded_payload['client_id']
 
     # Add exp/iat
-    current_app.logger.debug("Adding expiration period to parties JWT")
     iat = int(str(time.time()).split('.')[0])
     exp = iat + RESPONSE_TOKEN_DURATION
     result['iat'] = iat
@@ -85,7 +82,6 @@ def index():
     result['jti'] = str(uuid.uuid4())
 
     # Build header
-    current_app.logger.debug("Generating header for parties_token JWT")
     header = {
         'x5c': get_x5c_chain(get_certificates(satellite))
     }

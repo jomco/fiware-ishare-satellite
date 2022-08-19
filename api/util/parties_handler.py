@@ -193,7 +193,6 @@ def get_parties_info(request, config, app):
         if 'capability_url' in p:
             party['capability_url'] = p['capability_url']
         parties_info['data'].append(party)
-        app.logger.debug("... participant has been appended")
-
+        
     # Return data
     return parties_info
