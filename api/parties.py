@@ -46,8 +46,10 @@ def index():
     # Paginate
     r_page = request.args.get('page')
     if (r_page is not None):
+        current_app.logger.debug("Paginate --> page: {}".format(r_page))
         parties_info = paginate_parties(parties_info, r_page)
     else:
+        current_app.logger.debug("Paginate --> page: 1")
         parties_info = paginate_parties(parties_info, 1)
 
     # Set parties_info
@@ -55,6 +57,7 @@ def index():
 
     # Add iss/sub (= local EORI)
     try:
+        current_app.logger.debug("Setting parameters 'iss' and 'sub' in parties JWT")
         result['iss'] = satellite['id']
         result['sub'] = satellite['id']
     except KeyError as ke:
