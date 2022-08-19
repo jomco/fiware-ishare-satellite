@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, current_app, abort, request
 from api.util.token_handler import validate_jwt, get_authorization_header
 from api.util.parties_handler import check_invalid_parameters, get_parties_info, paginate_parties
-from api.util.config_handler import get_private_key
+from api.util.config_handler import get_private_key, get_certificates
 import uuid
 import time, os
 import jwt
@@ -79,11 +79,16 @@ def index():
     # Add jti
     result['jti'] = str(uuid.uuid4())
 
+    # Build header
+    header = {
+        'x5c': get_x5c_chain(get_certificates(satellite))
+    }
+
     # Encode JWT
     current_app.logger.debug("Encoding parties_token JWT")
     p_token = ""
     try:
-        p_token = jwt.encode(result, get_private_key(satellite), algorithm="RS256")
+        p_token = jwt.encode(result, get_private_key(satellite), algorithm="RS256", headers=header)
     except Exception as ex:
         current_app.logger.debug('Could not encode JWT for parties_token: {}'.format(ex))
         abort(500)

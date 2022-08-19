@@ -50,6 +50,18 @@ def get_authorization_header(request):
 def load_certificate(cert):
     return crypto.load_certificate(crypto.FILETYPE_PEM, cert)
 
+# Retrieves x5c cert chain array from config string
+def get_x5c_chain(cert):
+    sp = cert.split('-----BEGIN CERTIFICATE-----\n')
+    sp = sp[1:]
+    
+    ca_chain = []
+    for ca in sp:
+        ca_sp = ca.split('\n-----END CERTIFICATE-----')
+        ca_chain.append(ca_sp[0].replace('\n',''))
+        
+    return ca_chain
+
 # Get subject components
 def get_subject_components(cert):
     cr = load_certificate(cert)
