@@ -19,8 +19,8 @@ def to_bool(value):
     return None
 
 # Check for parameter requirements (returns None if params ok)
-def check_invalid_parameters(request): 
-    
+def check_invalid_parameters(request):
+
     # Check for minimum parameters
     ok = False
     for p in MINIMUM_PARAMETERS:
@@ -66,6 +66,8 @@ def check_invalid_parameters(request):
 
 # Check certificate_subject_name of party certificate
 def check_certificate_subject_name(certificate_subject_name, request_eori, party, app):
+
+    app.logger.debug("Compare requested certificate subject name for {}".format(party['id']))
     
     # Get subject_name components from party certificate
     crt = party['crt']
@@ -77,13 +79,17 @@ def check_certificate_subject_name(certificate_subject_name, request_eori, party
     for s in r_sub_array:
         comp = s.strip().split('=')
         r_subject_components.append(comp)
-    
+
+    app.logger.debug("==> Requested: {}".format(r_subject_components))
+    app.logger.debug("==> Certificate: {}".format(crt_subject_components))
+        
     # Iterate over requested subject name attributes
     for r in r_subject_components:
         found = False
         for c in crt_subject_components:
             # If serialNumber, compare to EORI
             if (c[0].strip() == 'serialNumber') and (request_eori != c[1].strip()):
+                app.logger.debug("Wrong serialNumber in certificate subject name")
                 return False
 
             # Compare attributes
@@ -93,8 +99,10 @@ def check_certificate_subject_name(certificate_subject_name, request_eori, party
 
         # Attribute not found
         if not found:
+            app.logger.debug("Certificate subject name does not match")
             return False
-            
+
+    app.logger.debug("Subject certificate name matched")
     return True
 
 # Paginate parties_info
@@ -145,6 +153,7 @@ def get_parties_info(request, config, app):
         # Check for certifications
         r_certified = to_bool(request.args.get('certified_only'))
         if r_certified is not None:
+            app.logger.debug("Check for requested participant certification")
             if (r_certified == True) and ('certifications' not in p):
                 continue
             elif (r_certified == False) and ('certifications' in p):
@@ -153,6 +162,7 @@ def get_parties_info(request, config, app):
         # Check for status
         r_active = to_bool(request.args.get('active_only'))
         if r_active is not None:
+            app.logger.debug("Check for requested participant status")
             if (r_active == True) and (p['status'] != "Active"):
                 continue
             elif (r_active == False) and (p['status'] == "Active"):
@@ -165,6 +175,7 @@ def get_parties_info(request, config, app):
                 continue
 
         # Append data
+        app.logger.debug("Participant '{}' passed, adding to result list".format(p['id']))
         parties_info['count'] += 1
         party = {
             'party_id': p['id'],
