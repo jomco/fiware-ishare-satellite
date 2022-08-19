@@ -75,19 +75,19 @@ def check_certificate_subject_name(certificate_subject_name, request_eori, party
     r_subject_components = []
     r_sub_array = certificate_subject_name.split(',')
     for s in r_sub_array:
-        comp = s.split('=')
+        comp = s.strip().split('=')
         r_subject_components.append(comp)
-
+    
     # Iterate over requested subject name attributes
     for r in r_subject_components:
         found = False
         for c in crt_subject_components:
             # If serialNumber, compare to EORI
-            if (c[0] == 'serialNumber') and (request_eori != c[1]):
+            if (c[0].strip() == 'serialNumber') and (request_eori != c[1].strip()):
                 return False
 
             # Compare attributes
-            if r[0] == c[0] and r[1] == c[1]:
+            if r[0].strip() == c[0].strip() and r[1].strip() == c[1].strip():
                 found = True
                 break
 
