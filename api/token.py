@@ -28,6 +28,7 @@ def index():
         if len(request_token) < 1:
             current_app.logger.debug('Empty Authorization header')
             abort(400)
+        current_app.logger.debug('Received client_assertion: {}'.format(request_token))
         request_id = request.form.get('client_id')
         request_grant_type = request.form.get('grant_type')
         request_scope = request.form.get('scope')

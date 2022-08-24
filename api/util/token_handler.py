@@ -89,6 +89,8 @@ def validate_jwt(token, config, app, required_issuer=None):
         # Decode JWT w/o verification to extract headers first
         decoded_payload = jwt.decode(token, options={"verify_signature": False})
         decoded_header = jwt.get_unverified_header(token)
+        app.logger.debug('--> Decoded JWT payload: {}'.format(decoded_payload))
+        app.logger.debug('--> Decoded JWT header: {}'.format(decoded_header))
         
         # Validate timestamp
         now = int(str(time.time()).split('.')[0])
