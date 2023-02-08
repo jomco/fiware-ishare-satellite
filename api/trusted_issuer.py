@@ -10,6 +10,8 @@ from api.util.config_handler import get_private_key, get_certificates
 import json
 
 
+# Implementation of the EBSI TrustedIssuers-Registry API. See https://api-pilot.ebsi.eu/docs/apis/trusted-issuers-registry/latest#/
+
 # Blueprint
 trusted_issuer = Blueprint("trusted_issuer", __name__, url_prefix="/trusted_issuer")
 
