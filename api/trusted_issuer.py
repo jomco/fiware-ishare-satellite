@@ -70,7 +70,6 @@ def getIssuers():
     # Build issuers list
     current_app.logger.info("Build issuers list")
 
-
     
     parties_list = satellite['parties']
 
@@ -79,10 +78,9 @@ def getIssuers():
     # Iterate over trusted_list from config file
     for c in parties_list:
         if 'did' not in c:
-            current_app.logger.info("No did, skip")
+            current_app.logger.debug("No did, skip")
             continue
 
-        current_app.logger.info("Found")
         total += 1
 
         entry = {
@@ -103,8 +101,6 @@ def getIssuers():
     return result
 
 def get_with_default(request, param: str, default: int) -> int:
-
-    current_app.logger.info("Get " + param)
 
     paramValue = request.args.get(param)
     if paramValue is None: 
