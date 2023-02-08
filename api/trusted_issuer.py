@@ -37,7 +37,7 @@ def getIssuer(did: str):
 
     for c in parties_list:
         if 'did' in c and c['did'] == did:
-            if 'crt' in c['did']:
+            if 'crt' in c:
                 result['attributes']['body']['certificate'] = base64.b64encode(c['crt'].encode('utf-8')).decode('utf-8')
             result['attributes']['hash'] = sha256(json.dumps(result).encode('utf-8')).hexdigest()
             return result
