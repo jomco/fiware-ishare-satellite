@@ -41,7 +41,7 @@ def getIssuer(did: str):
                 result['attributes']['body']['certificate'] = base64.b64encode(c['crt'].encode('utf-8')).decode('utf-8')
             result['attributes']['hash'] = sha256(json.dumps(result).encode('utf-8')).hexdigest()
             return result
-    abort(404) 
+    abort(Response("No such issuer found.", 404)) 
 
             
 
