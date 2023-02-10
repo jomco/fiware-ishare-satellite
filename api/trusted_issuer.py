@@ -56,7 +56,7 @@ def getAttribute(body: dict):
     payloadBytes = json.dumps(body).encode('utf-8')
     return {
         'body': base64.b64encode(payloadBytes).decode('utf-8'),
-        'hash': sha256(payloadBytes).hexdigest
+        'hash': sha256(payloadBytes).hexdigest()
     }
 
 
