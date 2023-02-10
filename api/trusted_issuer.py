@@ -1,8 +1,9 @@
 import base64
 from distutils.command.config import config
+import re
 from this import d
 from hashlib import sha256
-from unittest import skip
+from typing import TypedDict
 from flask import Blueprint, Response, current_app, abort, request
 from api.util.parties_handler import get_parties_info
 from api.util.token_handler import validate_jwt, get_authorization_header, get_subject_components, load_certificate, get_x5c_chain
@@ -28,22 +29,36 @@ def getIssuer(did: str):
 
     result = {
         'did': did,
-        'attributes': {
-            'body': {
-                'certificate': ''
-            }
-        }
+        'attributes': []
     }
 
     for c in parties_list:
         if 'did' in c and c['did'] == did:
-            if 'crt' in c:
-                result['attributes']['body']['certificate'] = base64.b64encode(c['crt'].encode('utf-8')).decode('utf-8')
-            result['attributes']['hash'] = sha256(json.dumps(result).encode('utf-8')).hexdigest()
+            # collect the attributes
+            if 'crt' in c: 
+                result['attributes'].append(getAttribute({'certificate': c['crt']}))
+            if 'name' in c: 
+                result['attributes'].append(getAttribute({'name': c['name']}))
+            if 'status' in c: 
+                result['attributes'].append(getAttribute({'status': c['status']}))
+            if 'id' in c: 
+                result['attributes'].append(getAttribute({'id': c['id']}))
+            if 'start_date' in c: 
+                result['attributes'].append(getAttribute({'start_date': c['start_date']}))
+            if 'end_date' in c: 
+                result['attributes'].append(getAttribute({'end_date': c['end_date']}))
             return result
     abort(Response("No such issuer found.", 404)) 
 
-            
+
+
+def getAttribute(body: dict):
+    payloadBytes = json.dumps(body).encode('utf-8')
+    return {
+        'body': base64.b64encode(payloadBytes).decode('utf-8'),
+        'hash': sha256(payloadBytes).hexdigest
+    }
+
 
 
 # GET /trusted_issuers
