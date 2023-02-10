@@ -1,4 +1,3 @@
-from turtle import st
 import pytest
 from api import app
 from tests.pytest.util.config_handler import load_config
