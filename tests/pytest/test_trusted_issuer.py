@@ -23,7 +23,7 @@ def client():
 # Successful trusted_issuer
 @pytest.mark.ok
 @pytest.mark.it('Successfully request /trusted_issuer')
-def test_trusted_list_ok(client):
+def test_trusted_issuer_list_ok(client):
     
     # Invoke request
     response = client.get(TRUSTED_ISSUER_ENDPOINT)
@@ -50,7 +50,7 @@ def test_trusted_list_ok(client):
 # Successfully retrieve trusted_issuer
 @pytest.mark.ok
 @pytest.mark.it('Get a single /trusted_issuer')
-def test_trusted_list_ok(client):
+def test_trusted_issuer(client):
     
     # Invoke request
     response = client.get(TRUSTED_ISSUER_ENDPOINT + "/" + TEST_DID)
