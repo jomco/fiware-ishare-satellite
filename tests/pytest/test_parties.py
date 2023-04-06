@@ -16,8 +16,8 @@ PARTIES_ENDPOINT = "/parties"
 
 @pytest.fixture
 def client():
-    app.logger.setLevel("DEBUG")
-    app.logger.info("Setting test logger...")
+    #app.logger.setLevel("DEBUG")
+    #app.logger.info("Setting test logger...")
 
     with app.test_client() as client:
         yield client
