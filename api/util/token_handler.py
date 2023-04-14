@@ -1,4 +1,5 @@
 import jwt
+import collections.abc
 from OpenSSL import crypto
 from OpenSSL.crypto import X509StoreContextError
 import cryptography.x509.oid as oid
@@ -218,6 +219,13 @@ def validate_jwt(token, config, app, required_issuer=None):
             if decoded_payload['iss'] != required_issuer:
                 app.logger.debug("Invalid iss parameter")
                 return False
+
+        # Check aud parameter --> iSHARE does not allow an array
+        if isinstance(decoded_payload['aud'], collections.abc.Sequence) and not isinstance(decoded_payload['aud'], (str, collections.abc.ByteString)):
+            app.logger.debug("Invalid aud parameter: must not be an array")
+        if decoded_payload['aud'] != config['id']:
+            app.logger.debug("Invalid aud parameter: {}".format(decoded_payload['aud']))
+        
 
         # Check for x5c header
         if 'x5c' not in decoded_header:
