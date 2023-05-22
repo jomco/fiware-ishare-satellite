@@ -31,14 +31,14 @@ def client():
 # Successful token
 @pytest.mark.ok
 @pytest.mark.it('Successfully request access_token')
-def test_token_ok(client):
+def test_token_ok(client, path = TOKEN_ENDPOINT):
     # Get request token
     token = create_request_token(client_id=client_config['id'], satellite_id=satellite_config['id'], key=client_config['key'], crt=client_config['crt'])
     t_auth_params = auth_params
     t_auth_params['client_assertion'] = token
 
     # Invoke request
-    response = client.post(TOKEN_ENDPOINT, data=t_auth_params)
+    response = client.post(path, data=t_auth_params)
     
     # Status code
     assert response.status_code == 200, "Response should have status code 200"
@@ -71,7 +71,12 @@ def test_token_ok(client):
     now = int(str(time.time()).split('.')[0])
     assert access_token['nbf'] <= now, "Returned token iad parameter should be smaller or equal than current timestamp"
     assert access_token['exp'] > now, "Returned token exp parameter should be larger than current timestamp"
-    
+
+@pytest.mark.ok
+@pytest.mark.it('Successfully request access_token on iSHARE path')
+def test_token_ok_ishare_path(client):
+    test_token_ok(client, '/connect/token')
+
 @pytest.mark.failure
 @pytest.mark.it('Failure: Request access token with invalid client')
 def test_token_invalid_client(client):

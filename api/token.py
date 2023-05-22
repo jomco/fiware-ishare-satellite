@@ -8,10 +8,11 @@ import time, os
 ACCESS_TOKEN_DURATION = int(os.environ.get('SATELLITE_ACCESS_TOKEN_DURATION', 3600))
 
 # Blueprint
-token_endpoint = Blueprint("token_endpoint", __name__, url_prefix="/token")
+token_endpoint = Blueprint("token_endpoint", __name__)
 
 # POST /token
-@token_endpoint.route("", methods = ['POST'])
+@token_endpoint.route("/token", methods = ['POST'])
+@token_endpoint.route("/connect/token", methods = ['POST'])
 def index():
 
     # Load config
