@@ -1,4 +1,5 @@
-import os
+import os, json, jwt, re, http, urllib, time
+from flask import abort
 from api.util.token_handler import get_subject_components_full, get_certificates_info
 
 # Maximum of parties per page
@@ -128,6 +129,10 @@ def get_parties_info(request, config, app):
         'data': []
     }
 
+    registrar_id = request.args.get('registrar_id')
+    if registrar_id and registrar_id != config['id']:
+        return get_associate_parties_info(request, config, app)
+
     # Iterate over parties
     if 'parties' not in config:
         app.logger.error('No parties specified in config')
@@ -206,3 +211,85 @@ def get_parties_info(request, config, app):
         
     # Return data
     return parties_info
+
+def trim_cert(cert):
+    return re.sub('-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\n', '', cert)
+
+def get_associate_parties_info(request, config, app):
+    associate_path = request.args.get('registrar_id').split(',')
+    if associate_path[0] != config['id']:
+        app.logger.error(f"Associate does not start with this instance: '{associate_path[0]}'")
+        abort(400)
+
+    associate_id = associate_path[1]
+    app.logger.debug(f"Will query associate '{associate_id}'")
+
+    associate = None
+    try:
+        associate = config['associates'][associate_id]
+    except KeyError:
+        app.logger.error(f"Associate not configured: '{associate_id}'")
+        abort(400)
+
+    associate = config['associates'][associate_id]
+    url = urllib.parse.urlparse(associate['url'])
+    hostname = url.netloc
+    if url.scheme == 'http':
+        client = http.client.HTTPConnection(hostname)
+    else:
+        client = http.client.HTTPSConnection(hostname)
+
+    ####################
+    # Acquire access token
+
+    iat = int(time.time())
+    exp = iat + 3600
+    client_assertion = jwt.encode({
+        'iat': iat,
+        'exp': exp,
+        'iss': config['id'],
+        'aud': associate_id
+    }, config['key'], algorithm='RS256', headers={
+        'x5c':
+        [trim_cert(cert) for cert in config['crt'].split('-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----')] +
+        [trim_cert(cert['crt']) for cert in config['trusted_list']]
+    })
+
+    params = {
+        'client_id': config['id'],
+        'grant_type': 'client_credentials',
+        'scope': 'iSHARE',
+        'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+        'client_assertion': client_assertion
+    }
+    headers = {
+        'Content-type': 'application/x-www-form-urlencoded'
+    }
+
+    app.logger.debug(f"Calling /connect/token endpoint at '{hostname}'")
+    client.request('POST', '/connect/token', urllib.parse.urlencode(params), headers)
+    res = client.getresponse()
+
+    if res.status != 200:
+        app.logger.error(f"Got bad response from satellite: '{res.read()}'")
+        abort(400, description=f'can not connect to satellite: {associate_id}')
+
+    access_token = json.load(res)['access_token']
+
+    ####################
+    # Get parties
+
+    params = request.args.to_dict()
+    associate_path = associate_path[1::] # pop current satellite of the path
+    params['registrar_id'] = str.join(',', associate_path)
+    params = urllib.parse.urlencode(params)
+
+    app.logger.debug(f"Calling /parties endpoint at '{hostname}'")
+    client.request('GET', f'/parties?{params}', None, {'Authorization': f'Bearer {access_token}'})
+    res = client.getresponse()
+
+    if res.status != 200:
+        abort(400, f'querying parties failed: {res.read()}')
+
+    parties_token = json.load(res)['parties_token']
+    return jwt.decode(parties_token, options={"verify_signature": False})['parties_info']
