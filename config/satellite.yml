@@ -119,3 +119,7 @@ parties:
       -----BEGIN CERTIFICATE-----
       <HappyPets Certificate>
       -----END CERTIFICATE-----
+
+associates:
+  "EU.EORI.OTHER-SATELLITE":
+    url: "https://other-satellite.example.com"
